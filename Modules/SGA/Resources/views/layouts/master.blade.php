@@ -64,6 +64,31 @@
                             <i class="fas fa-user nav-icon"></i> {{ trans('sga::menu.Profile') }}
                         </a>
                     </div>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ Route::is('cefa.sga.admin.convocatories') || Route::is('cefa.sga.admin.points') || Route::is('cefa.sga.admin.external-events') ? 'active' : '' }}"
+                        href="#"
+                        id="navbarSysParams"
+                        role="button"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                        <i class="fas fa-cogs nav-icon"></i> {{ trans('sga::menu.sys-params') }}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarSysParams">
+                        <a href="{{ route('cefa.sga.admin.convocatories') }}"
+                            class="dropdown-item {{ Route::is('cefa.sga.admin.convocatories') ? 'active' : '' }}">
+                            <i class="fas fa-file-alt nav-icon"></i> {{ trans('sga::menu.convocatories') }}
+                        </a>
+                        <a href="{{ route('cefa.sga.admin.convocatory_points') }}"
+                            class="dropdown-item {{ Route::is('cefa.sga.admin.convocatory_points') ? 'active' : '' }}">
+                            <i class="fas fa-bullseye nav-icon"></i> {{ trans('sga::menu.points') }}
+                        </a>
+                        <a href="{{ route('cefa.sga.admin.external-events') }}"
+                            class="dropdown-item {{ Route::is('cefa.sga.admin.external-events') ? 'active' : '' }}">
+                            <i class="fas fa-calendar-alt nav-icon"></i> {{ trans('sga::menu.external-events') }}
+                        </a>
+                    </div>
+                </li>
                 </li>
                 @endif
                 @if (Route::is('cefa.sga.staff.*'))
@@ -327,6 +352,34 @@
                                 <p>{{ trans('sga::menu.b-summary') }}</p>
                             </a>
                         </li>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cogs"></i>
+                                <p>{{ trans('sga::menu.sys-params') }}
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('cefa.sga.admin.convocatories') }}" class="nav-link {{ Route::is('cefa.sga.admin.convocatories') ? 'active' : '' }}">
+                                        <i class="fas fa-file-alt nav-icon"></i>
+                                        <p>{{ trans('sga::menu.convocatories') }}</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('cefa.sga.admin.convocatory_points') }}" class="nav-link {{ Route::is('cefa.sga.admin.convocatory_points') ? 'active' : '' }}">
+                                        <i class="fas fa-bullseye nav-icon"></i>
+                                        <p>{{ trans('sga::menu.points') }}</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('cefa.sga.admin.external-events') }}" class="nav-link {{ Route::is('cefa.sga.admin.external-events') ? 'active' : '' }}">
+                                        <i class="fas fa-calendar-alt nav-icon"></i>
+                                        <p>{{ trans('sga::menu.external-events') }}</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a href="{{ route('cefa.sga.admin.profile') }}"
                                 class="nav-link {{ Route::is('cefa.sga.admin.profile') ? 'active' : '' }}">
@@ -360,7 +413,7 @@
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('cefa.sga.staff.incidents') }}"
-                               class="nav-link {{ Route::is('cefa.sga.staff.incidents') ? 'active' : '' }}">
+                                class="nav-link {{ Route::is('cefa.sga.staff.incidents') ? 'active' : '' }}">
                                 <i class="fas fa-exclamation-triangle nav-icon"></i>
                                 <p>{{ trans('sga::menu.incident-management') }}</p>
                             </a>

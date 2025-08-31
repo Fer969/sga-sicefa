@@ -60,34 +60,34 @@ Route::middleware(['lang'])->group(function () {
         Route::controller(AdmBSummaryController::class)->group(function () {
             Route::get('admin/b-summary', 'index')->name('cefa.sga.admin.b-summary'); // Visualizar puntajes de aprendices
         });
-        Route::controller(AdmSysParamsController::class)->group(function () {
-            Route::get('admin/sys-params', 'index')->name('cefa.sga.admin.sys-params'); // Configurar entorno
-            Route::post('admin/sys-params/crear-convocatoria', 'crearConvocatoria')->name('cefa.sga.admin.sys-params.crear-convocatoria');
-
+        Route::controller(AdmConvocatoriesController::class)->group(function () {
+            Route::get('admin/convocatories', 'index')->name('cefa.sga.admin.convocatories'); // Configurar convocatorias
             // Obtener listado de convocatorias
-            Route::get('admin/sys-params/obtener-convocatorias', 'obtenerConvocatorias')->name('cefa.sga.admin.sys-params.obtener-convocatorias');
-
+            Route::get('admin/convocatories/obtener', 'obtenerConvocatorias')->name('cefa.sga.admin.convocatories.obtener');
+            // Crear nueva convocatoria
+            Route::post('admin/convocatories', 'store')->name('cefa.sga.admin.convocatories.store');
             // Cambiar estado de convocatoria (Activa/Inactiva)
-            Route::post('admin/sys-params/cambiar-estado/{id}', 'cambiarEstadoConvocatoria')->name('cefa.sga.admin.sys-params.cambiar-estado');
+            Route::post('admin/convocatories/cambiar-estado/{id}', 'cambiarEstadoConvocatoria')->name('cefa.sga.admin.convocatories.cambiar-estado');
+            // Eliminar convocatoria
+            Route::delete('admin/convocatories/{id}', 'destroy')->name('cefa.sga.admin.convocatories.destroy');
+        });
 
-            Route::post('admin/sys-params/actualizar-puntajes', 'actualizarPuntajes')->name('cefa.sga.admin.sys-params.actualizar-puntajes');
-
-            // Obtener puntajes de una convocatoria específica
-            Route::get('admin/sys-params/obtener-puntajes/{convocatoriaId}', 'obtenerPuntajes')->name('cefa.sga.admin.sys-params.obtener-puntajes');
-
-            // Crear nuevo evento externo
-            Route::post('admin/sys-params/crear-evento', 'crearEvento')->name('cefa.sga.admin.sys-params.crear-evento');
-
-            // Obtener listado de eventos
-            Route::get('admin/sys-params/obtener-eventos', 'obtenerEventos')->name('cefa.sga.admin.sys-params.obtener-eventos');
-
-            // Obtener tipos de convocatorias disponibles
-            Route::get('admin/sys-params/tipos-convocatorias', 'obtenerTiposConvocatorias')->name('cefa.sga.admin.sys-params.tipos-convocatorias');
-
-            // Obtener estadísticas del sistema
-            Route::get('admin/sys-params/estadisticas', 'obtenerEstadisticas')->name('cefa.sga.admin.sys-params.estadisticas');
-
-            Route::get('admin/sys-params/debug', 'debug')->name('cefa.sga.admin.sys-params.debug');
+        // Rutas para puntos de convocatorias
+        Route::controller(AdmConvocatoryPointsController::class)->group(function () {
+            Route::get('admin/convocatory-points', 'index')->name('cefa.sga.admin.convocatory_points'); // Configurar puntos de convocatorias
+            Route::post('admin/convocatory-points', 'store')->name('cefa.sga.admin.convocatory_points.store'); // Crear puntos
+            Route::post('admin/convocatory-points/copy', 'copyPoints')->name('cefa.sga.admin.convocatory_points.copy'); // Copiar puntos
+            Route::get('admin/convocatory-points/{id}', 'getPoints')->name('cefa.sga.admin.convocatory_points.get'); // Obtener puntos
+        });
+        Route::controller(AdmExternalEventsController::class)->group(function () {
+            Route::get('admin/external-events', 'index')->name('cefa.sga.admin.external-events'); // Configurar eventos externos
+            Route::post('admin/external-events', 'store')->name('cefa.sga.admin.external-events.store'); // Crear evento
+            // Mantener ruta existente para compatibilidad
+            Route::get('admin/external-events/obtener-eventos', 'obtenerEventos')->name('cefa.sga.admin.external-events.obtener-eventos');
+            // Rutas con parámetros al final para evitar conflictos
+            Route::get('admin/external-events/{id}', 'getEvent')->name('cefa.sga.admin.external-events.get'); // Obtener evento
+            Route::put('admin/external-events/{id}', 'update')->name('cefa.sga.admin.external-events.update'); // Actualizar evento
+            Route::delete('admin/external-events/{id}', 'destroy')->name('cefa.sga.admin.external-events.destroy'); // Eliminar evento
         });
         Route::controller(AdmProfileController::class)->group(function () {
             Route::get('admin/profile', 'index')->name('cefa.sga.admin.profile'); // Configurar perfil de usuario
@@ -108,25 +108,18 @@ Route::middleware(['lang'])->group(function () {
             // ========================================
             // Permiten al staff generar reportes en diferentes formatos
             // para análisis, presentaciones y archivo oficial
-
             // Exportar reporte diario en Excel
             Route::get('staff/ops-reports/export-day', 'exportAttendanceDay')->name('cefa.sga.staff.ops-reports.export-day');
-
             // Exportar reporte semanal en Excel
             Route::get('staff/ops-reports/export-week', 'exportAttendanceWeek')->name('cefa.sga.staff.ops-reports.export-week');
-
             // Exportar reporte mensual en Excel
             Route::get('staff/ops-reports/export-month', 'exportAttendanceMonth')->name('cefa.sga.staff.ops-reports.export-month');
-
             // Exportar reporte diario en PDF
             Route::get('staff/ops-reports/export-day-pdf', 'exportAttendanceDayPDF')->name('cefa.sga.staff.ops-reports.export-day-pdf');
-
             // Exportar reporte semanal en PDF
             Route::get('staff/ops-reports/export-week-pdf', 'exportAttendanceWeekPDF')->name('cefa.sga.staff.ops-reports.export-week-pdf');
-
             // Exportar reporte mensual en PDF
             Route::get('staff/ops-reports/export-month-pdf', 'exportAttendanceMonthPDF')->name('cefa.sga.staff.ops-reports.export-month-pdf');
-
             // Obtener estadísticas en tiempo real para el dashboard
             Route::get('staff/stats', 'getStats')->name('cefa.sga.staff.stats');
         });

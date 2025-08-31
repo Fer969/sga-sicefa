@@ -28,6 +28,14 @@ class SGAServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+        
+        // Registrar comandos del módulo
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\SGA\Console\Commands\CheckConvocatoryTypes::class,
+                \Modules\SGA\Console\Commands\CreateConvocatoryType::class,
+            ]);
+        }
     }
 
     /**
