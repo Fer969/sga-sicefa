@@ -20,12 +20,11 @@ Route::middleware(['lang'])->group(function () {
         Route::controller(AdmStaffController::class)->group(function () {
             // Acceso a CRUD de Funcionarios
             Route::get('admin/staff', 'index')->name('cefa.sga.admin.staff');
-            Route::get('/staff-users', 'index')->name('cefa.sga.admin.staff.users');
-            Route::get('/staff-users', 'show')->name('cefa.sga.admin.staff.users.show');
+            Route::get('admin/staff/{user}', 'show')->name('cefa.sga.admin.staff.show');
             // Ruta para mostrar el formulario de cambio de contraseña
-            Route::get('/{user}/password', 'showPasswordForm')->name('password.form');
+            Route::get('admin/staff/{user}/password', 'showPasswordForm')->name('cefa.sga.admin.staff.show-password-form');
             // Ruta para actualizar la contraseña
-            Route::put('/{user}/password', 'updatePassword')->name('password.update');
+            Route::put('admin/staff/{user}/password', 'updatePassword')->name('cefa.sga.admin.staff.update-password');
         });
         Route::controller(AdmApprenticeController::class)->group(function () {
             // Acceso a CRUD de Aprendices

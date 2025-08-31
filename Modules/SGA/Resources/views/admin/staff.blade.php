@@ -3,6 +3,8 @@
 @section('title', 'Usuarios Staff')
 
 @section('content')
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
@@ -14,8 +16,13 @@
                     </h1>
                     <p class="text-muted">{{ trans('sga::contents.AdmStaDescription-1') }}</p>
                 </div>
-                <div class="badge bg-olive-green fs-6">
-                    Total: {{ $staffUsers->total() }} usuarios
+                <div class="d-flex align-items-center gap-3">
+                    <div class="badge bg-olive-green fs-6">
+                        Total: {{ $staffUsers->total() }} usuarios
+                    </div>
+                    <button type="button" class="btn btn-info btn-sm" onclick="probarJavaScript()">
+                        <i class="fas fa-bug me-1"></i>Probar JS
+                    </button>
                 </div>
             </div>
 
@@ -104,9 +111,15 @@
                                                         class="btn btn-outline-olive-green btn-sm change-password-btn" 
                                                         data-user-id="{{ $user->id }}"
                                                         data-user-name="{{ $user->first_name }} {{ $user->first_last_name }}"
-                                                        title="Cambiar contraseña">
+                                                        title="Establecer nueva contraseña">
                                                     <i class="fas fa-key"></i>
                                                     <span class="d-none d-md-inline ms-1">Contraseña</span>
+                                                </button>
+                                                <button type="button" 
+                                                        class="btn btn-outline-info btn-sm test-btn" 
+                                                        data-user-id="{{ $user->id }}"
+                                                        title="Probar JavaScript">
+                                                    <i class="fas fa-bug"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -144,7 +157,7 @@
             <div class="modal-header bg-olive-green text-white">
                 <h5 class="modal-title" id="passwordModalLabel">
                     <i class="fas fa-key me-2"></i>
-                    Cambiar Contraseña
+                    Establecer Nueva Contraseña
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -156,19 +169,6 @@
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Usuario:</strong> <span id="userName"></span><br>
                         <strong>Nota:</strong> La contraseña debe tener al menos 8 caracteres.
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="current_password" class="form-label text-dark-green">
-                            <i class="fas fa-lock me-1"></i>
-                            Contraseña Actual
-                        </label>
-                        <input type="password" 
-                               class="form-control border-olive-green" 
-                               id="current_password" 
-                               name="current_password" 
-                               required>
-                        <div class="invalid-feedback"></div>
                     </div>
                     
                     <div class="mb-3">
@@ -207,7 +207,7 @@
                     </button>
                     <button type="submit" class="btn btn-dark-green" id="submitPasswordBtn">
                         <i class="fas fa-save me-1"></i>
-                        <span class="btn-text">Cambiar Contraseña</span>
+                        <span class="btn-text">Establecer Contraseña</span>
                         <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                     </button>
                 </div>
@@ -216,26 +216,67 @@
     </div>
 </div>
 
-@push('scripts')
 <script>
+// Script inmediato para verificar que se carga
+console.log('=== SCRIPT DE STAFF CARGADO ===');
+console.log('DOM listo:', document.readyState);
+
+// Función global de prueba
+function probarJavaScript() {
+    console.log('=== PRUEBA GLOBAL DE JAVASCRIPT ===');
+    console.log('SweetAlert disponible:', typeof Swal !== 'undefined');
+    console.log('Bootstrap disponible:', typeof bootstrap !== 'undefined');
+    
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: '¡JavaScript funcionando!',
+            text: 'El JavaScript se está cargando correctamente',
+            icon: 'success',
+            confirmButtonText: 'Perfecto'
+        });
+    } else {
+        alert('JavaScript funciona pero SweetAlert no está disponible');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    console.log('=== DOM CARGADO - STAFF ===');
+    
     const passwordModal = document.getElementById('passwordModal');
     const passwordForm = document.getElementById('passwordForm');
     const submitBtn = document.getElementById('submitPasswordBtn');
     const btnText = submitBtn.querySelector('.btn-text');
     const spinner = submitBtn.querySelector('.spinner-border');
+    
+    console.log('Elementos encontrados:', {
+        passwordModal: !!passwordModal,
+        passwordForm: !!passwordForm,
+        submitBtn: !!submitBtn,
+        btnText: !!btnText,
+        spinner: !!spinner
+    });
 
     // Abrir modal cuando se hace clic en el botón de contraseña
-    document.querySelectorAll('.change-password-btn').forEach(button => {
+    const changePasswordBtns = document.querySelectorAll('.change-password-btn');
+    const testBtns = document.querySelectorAll('.test-btn');
+    
+    console.log('Botones encontrados:', {
+        changePasswordBtns: changePasswordBtns.length,
+        testBtns: testBtns.length
+    });
+    
+    changePasswordBtns.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             
             const userId = this.getAttribute('data-user-id');
             const userName = this.getAttribute('data-user-name');
             
+            console.log('Abriendo modal para usuario:', userId, userName);
+            
             // Actualizar información del modal
             document.getElementById('userName').textContent = userName;
-            passwordForm.action = `/admin/staff/${userId}/password`;
+            passwordForm.action = `/sga/admin/staff/${userId}/password`;
             
             // Limpiar formulario
             passwordForm.reset();
@@ -244,6 +285,26 @@ document.addEventListener('DOMContentLoaded', function () {
             // Mostrar modal
             const modal = new bootstrap.Modal(passwordModal);
             modal.show();
+        });
+    });
+
+    // Botón de prueba para verificar JavaScript
+    testBtns.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const userId = this.getAttribute('data-user-id');
+            console.log('=== PRUEBA DE JAVASCRIPT ===');
+            console.log('Usuario ID:', userId);
+            console.log('SweetAlert disponible:', typeof Swal !== 'undefined');
+            console.log('Bootstrap Modal disponible:', typeof bootstrap !== 'undefined');
+            
+            Swal.fire({
+                title: '¡Prueba exitosa!',
+                text: 'El JavaScript está funcionando correctamente',
+                icon: 'success',
+                confirmButtonText: 'Perfecto'
+            });
         });
     });
 
@@ -277,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const formData = new FormData(passwordForm);
         const userId = passwordForm.action.split('/').slice(-2, -1)[0];
 
-        fetch(`/admin/staff/${userId}/password`, {
+        fetch(`/sga/admin/staff/${userId}/password`, {
             method: 'POST',
             body: formData,
             headers: {
@@ -285,8 +346,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 'X-Requested-With': 'XMLHttpRequest'
             },
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
             setLoadingState(false);
             
             if (data.success) {
@@ -308,14 +373,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     });
                 } else {
-                    showAlert('danger', data.message);
+                    showAlert('error', data.message);
                 }
             }
         })
         .catch(error => {
             setLoadingState(false);
             console.error('Error:', error);
-            showAlert('danger', 'Error al actualizar la contraseña. Por favor, intente de nuevo.');
+            showAlert('error', 'Error al actualizar la contraseña. Por favor, intente de nuevo.');
         });
     });
 
@@ -347,27 +412,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function showAlert(type, message) {
-        const alertContainer = document.querySelector('.container .row .col-12');
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type} alert-dismissible fade show`;
-        alert.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        alertContainer.insertBefore(alert, alertContainer.children[1]);
-        
-        // Auto-dismiss después de 5 segundos
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.remove();
-            }
-        }, 5000);
+        if (type === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: message,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: message,
+                confirmButtonText: 'Entendido'
+            });
+        }
     }
 });
 </script>
-@endpush
 
 @push('styles')
 <style>

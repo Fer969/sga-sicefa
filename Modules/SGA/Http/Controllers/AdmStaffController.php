@@ -12,6 +12,7 @@ use Modules\SICA\Entities\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;    
 use Illuminate\Support\Facades\Log;
+use Modules\SGA\Http\Requests\StaffPasswordRequest;
 
 class AdmStaffController extends Controller
 {
@@ -61,7 +62,7 @@ class AdmStaffController extends Controller
         ]);
     }
 
-    public function updatePassword(Request $request, User $user)
+    public function updatePassword(StaffPasswordRequest $request, User $user)
     {
         try {
             // Verificar que el usuario tiene rol de staff
@@ -78,63 +79,37 @@ class AdmStaffController extends Controller
                 ], 403);
             }
 
-            // Validar los datos
-            $request->validate([
-                'current_password' => ['required', 'string'],
-                'new_password' => ['required', 'string', 'min:8', 'confirmed'],
-                'new_password_confirmation' => ['required', 'string', 'min:8'],
-            ], [
-                'current_password.required' => 'La contraseña actual es obligatoria.',
-                'new_password.required' => 'La nueva contraseña es obligatoria.',
-                'new_password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
-                'new_password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
-                'new_password_confirmation.required' => 'La confirmación de contraseña es obligatoria.',
-            ]);
-
-            // Verificar que la contraseña actual sea correcta
-            if (!Hash::check($request->current_password, $user->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'La contraseña actual no es correcta.'
-                ], 422);
-            }
+            $data = $request->validated();
 
             // Verificar que la nueva contraseña sea diferente a la actual
-            if (Hash::check($request->new_password, $user->password)) {
+            if (Hash::check($data['new_password'], $user->password)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'La nueva contraseña debe ser diferente a la actual.'
                 ], 422);
             }
 
-            // Actualizar la contraseña
-            $user->update([
-                'password' => Hash::make($request->new_password),
-                'updated_at' => now()
-            ]);
+            // Actualizar la contraseña con hash seguro
+            $user->password = Hash::make($data['new_password']);
+            $user->updated_at = now();
+            $user->save();
 
-            // Log de la acción (opcional)
-            \Log::info('Contraseña actualizada para usuario staff', [
+            // Log de la acción
+            Log::info('Contraseña establecida para usuario staff', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'updated_by' => Auth::id(),
-                'timestamp' => now()
+                'timestamp' => now(),
+                'password_set' => true
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Contraseña actualizada correctamente.'
+                'message' => 'Contraseña establecida correctamente.'
             ]);
 
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación.',
-                'errors' => $e->errors()
-            ], 422);
-
         } catch (\Exception $e) {
-            \Log::error('Error al actualizar contraseña de usuario staff', [
+            Log::error('Error al actualizar contraseña de usuario staff', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -142,7 +117,7 @@ class AdmStaffController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error interno del servidor. Por favor, intente de nuevo.'
+                'message' => 'Error al establecer la contraseña. Por favor, intente de nuevo.'
             ], 500);
         }
     }
