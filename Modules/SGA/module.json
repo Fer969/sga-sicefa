@@ -1,0 +1,13 @@
+{
+    "name": "SGA",
+    "alias": "sga",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\SGA\\Providers\\SGAServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
