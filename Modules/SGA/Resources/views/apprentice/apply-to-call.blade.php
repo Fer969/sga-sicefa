@@ -210,89 +210,159 @@
                             <i class="fas fa-info-circle me-2"></i>Información de la Convocatoria
                         </h4>
                         
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <div class="info-card">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                        <span class="info-label">Período:</span>
-                                    </div>
-                                    <div class="info-value">{{ $convocatory->quarter ?? 'N/A' }} - {{ $convocatory->year ?? 'N/A' }}</div>
-                                </div>
+                        @if(!$convocatory)
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                <h5>No hay convocatorias activas</h5>
+                                <p class="mb-0">Actualmente no hay convocatorias de alimentación disponibles para aplicar.</p>
                             </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <div class="info-card">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-users text-success me-2"></i>
-                                        <span class="info-label">Cupos:</span>
+                        @else
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                            <span class="info-label">Período:</span>
+                                        </div>
+                                        <div class="info-value">{{ $convocatory->quarter ?? 'N/A' }}° Trimestre {{ $convocatory->year ?? 'N/A' }}</div>
                                     </div>
-                                    <div class="info-value">{{ $convocatory->coups ?? 'N/A' }} disponibles</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-users text-success me-2"></i>
+                                            <span class="info-label">Cupos:</span>
+                                        </div>
+                                        <div class="info-value">{{ $convocatory->coups ?? 'N/A' }} disponibles</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-calendar-plus text-info me-2"></i>
+                                            <span class="info-label">Fecha de Inicio:</span>
+                                        </div>
+                                        <div class="info-value">
+                                            @if($convocatory->registration_start_date)
+                                                {{ \Carbon\Carbon::parse($convocatory->registration_start_date)->format('d/m/Y H:i') }}
+                                                @php
+                                                    $startDate = \Carbon\Carbon::parse($convocatory->registration_start_date);
+                                                    $now = \Carbon\Carbon::now();
+                                                @endphp
+                                                @if($now->lt($startDate))
+                                                    <span class="badge bg-warning text-dark ms-2">Próximamente</span>
+                                                @else
+                                                    <span class="badge bg-success ms-2">Iniciado</span>
+                                                @endif
+                                            @else
+                                                <span class="text-muted">No definida</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-calendar-times text-warning me-2"></i>
+                                            <span class="info-label">Fecha de Cierre:</span>
+                                        </div>
+                                        <div class="info-value">
+                                            @if($convocatory->registration_deadline)
+                                                {{ \Carbon\Carbon::parse($convocatory->registration_deadline)->format('d/m/Y H:i') }}
+                                                @php
+                                                    $deadline = \Carbon\Carbon::parse($convocatory->registration_deadline);
+                                                    $now = \Carbon\Carbon::now();
+                                                @endphp
+                                                @if($now->gt($deadline))
+                                                    <span class="badge bg-danger ms-2">Finalizado</span>
+                                                @else
+                                                    <span class="badge bg-success ms-2">Activo</span>
+                                                @endif
+                                            @else
+                                                <span class="text-muted">No definida</span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <div class="info-card">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-calendar-plus text-info me-2"></i>
-                                        <span class="info-label">Fecha de Inicio:</span>
-                                    </div>
-                                    <div class="info-value">
-                                        @if($convocatory && $convocatory->registration_start_date)
-                                            {{ \Carbon\Carbon::parse($convocatory->registration_start_date)->format('d/m/Y') }}
-                                        @else
-                                            N/A
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <div class="info-card">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-calendar-times text-warning me-2"></i>
-                                        <span class="info-label">Fecha de Cierre:</span>
-                                    </div>
-                                    <div class="info-value">
-                                        @if($convocatory && $convocatory->registration_deadline)
-                                            {{ \Carbon\Carbon::parse($convocatory->registration_deadline)->format('d/m/Y') }}
-                                        @else
-                                            N/A
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Estado de la Convocatoria -->
-                        <div class="text-center mb-4">
-                            @if($convocatory && $convocatory->status === 'Active')
-                                <span class="status-badge bg-success">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    Convocatoria Abierta
+                            <!-- Estado de la Convocatoria -->
+                            <div class="text-center mb-4">
+                                @php
+                                    $now = \Carbon\Carbon::now();
+                                    $startDate = $convocatory->registration_start_date ? \Carbon\Carbon::parse($convocatory->registration_start_date) : null;
+                                    $deadline = $convocatory->registration_deadline ? \Carbon\Carbon::parse($convocatory->registration_deadline) : null;
+                                    
+                                    $canApply = $convocatory->status === 'Active';
+                                    $inPeriod = true;
+                                    $statusMessage = '';
+                                    $statusClass = 'bg-success';
+                                    $statusIcon = 'fas fa-check-circle';
+                                    
+                                    if ($startDate && $now->lt($startDate)) {
+                                        $canApply = false;
+                                        $inPeriod = false;
+                                        $statusMessage = 'El período de registro aún no ha comenzado';
+                                        $statusClass = 'bg-warning';
+                                        $statusIcon = 'fas fa-clock';
+                                    } elseif ($deadline && $now->gt($deadline)) {
+                                        $canApply = false;
+                                        $inPeriod = false;
+                                        $statusMessage = 'El período de registro ha finalizado';
+                                        $statusClass = 'bg-danger';
+                                        $statusIcon = 'fas fa-times-circle';
+                                    } elseif ($convocatory->status !== 'Active') {
+                                        $canApply = false;
+                                        $statusMessage = 'La convocatoria no está activa';
+                                        $statusClass = 'bg-secondary';
+                                        $statusIcon = 'fas fa-pause-circle';
+                                    } else {
+                                        $statusMessage = 'Convocatoria abierta para aplicaciones';
+                                    }
+                                @endphp
+                                
+                                <span class="status-badge {{ $statusClass }}">
+                                    <i class="{{ $statusIcon }} me-2"></i>
+                                    {{ $statusMessage }}
                                 </span>
-                            @else
-                                <span class="status-badge bg-danger">
-                                    <i class="fas fa-times-circle me-2"></i>
-                                    Convocatoria Cerrada
-                                </span>
-                            @endif
-                        </div>
+                                
+                                @if(!$inPeriod && $startDate)
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            @if($now->lt($startDate))
+                                                Inicia el {{ $startDate->format('d/m/Y H:i') }}
+                                            @elseif($deadline && $now->gt($deadline))
+                                                Finalizó el {{ $deadline->format('d/m/Y H:i') }}
+                                            @endif
+                                        </small>
+                                    </div>
+                                @endif
+                            </div>
 
-                        <!-- Botón de Aplicación -->
-                        <div class="text-center mb-4">
-                            @if($convocatory && $convocatory->status === 'Active')
-                                <button id="applyButton" class="btn btn-success btn-lg px-5 py-3">
-                                    <i class="fas fa-paper-plane me-2"></i>
-                                    Aplicar Ahora
-                                </button>
-                            @else
-                                <button class="btn btn-secondary btn-lg px-5 py-3" disabled>
-                                    <i class="fas fa-clock me-2"></i>
-                                    Convocatoria Cerrada
-                                </button>
-                            @endif
-                        </div>
+                            <!-- Botón de Aplicación -->
+                            <div class="text-center mb-4">
+                                @if($canApply)
+                                    <button id="applyButton" class="btn btn-success btn-lg px-5 py-3">
+                                        <i class="fas fa-paper-plane me-2"></i>
+                                        Aplicar Ahora
+                                    </button>
+                                @else
+                                    <button class="btn btn-secondary btn-lg px-5 py-3" disabled>
+                                        <i class="fas fa-clock me-2"></i>
+                                        @if(!$inPeriod && $startDate && $now->lt($startDate))
+                                            Próximamente
+                                        @elseif(!$inPeriod && $deadline && $now->gt($deadline))
+                                            Período Finalizado
+                                        @else
+                                            Convocatoria No Disponible
+                                        @endif
+                                    </button>
+                                @endif
+                            </div>
+                        @endif
 
                         <hr class="my-4">
 
@@ -414,6 +484,20 @@ function proceedWithApplication() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Preparar información detallada de puntos
+            let pointsDetails = '';
+            let appliedCount = data.points_summary.total_applied || 0;
+            let notAppliedCount = data.points_summary.total_not_applied || 0;
+            
+            if (data.points_summary && data.points_summary.applied_points) {
+                pointsDetails = '<div class="mt-3"><h6 class="text-success">Puntos Aplicados:</h6><ul class="list-unstyled">';
+                Object.keys(data.points_summary.applied_points).forEach(key => {
+                    const point = data.points_summary.applied_points[key];
+                    pointsDetails += `<li><i class="fas fa-check text-success me-2"></i>${key.replace(/_/g, ' ').toUpperCase()}: ${point.points} puntos</li>`;
+                });
+                pointsDetails += '</ul></div>';
+            }
+
             Swal.fire({
                 html: `
                     <div class="text-center">
@@ -423,28 +507,85 @@ function proceedWithApplication() {
                         <h3 class="fw-bold mb-3 text-success">¡Aplicación Enviada!</h3>
                         <p class="mb-3">${data.message}</p>
                         <div class="alert alert-success">
-                            <h4 class="mb-2">Puntaje Total</h4>
+                            <h4 class="mb-2">Puntaje Total Obtenido</h4>
                             <span class="h2 fw-bold">${data.total_points}</span>
+                            <p class="mb-0 mt-2">
+                                <small class="text-muted">
+                                    Convocatoria: ${data.convocatory_name || 'Apoyo de Alimentación'}
+                                </small>
+                            </p>
                         </div>
-                        <p class="text-muted">Tu solicitud ha sido registrada exitosamente.</p>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="bg-success bg-opacity-25 rounded p-2">
+                                    <h6 class="text-success mb-1">${appliedCount}</h6>
+                                    <small class="text-muted">Items Aplicados</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-warning bg-opacity-25 rounded p-2">
+                                    <h6 class="text-warning mb-1">${notAppliedCount}</h6>
+                                    <small class="text-muted">Items No Aplicados</small>
+                                </div>
+                            </div>
+                        </div>
+                        ${pointsDetails}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Importante:</strong> Tu aplicación ha sido registrada exitosamente. 
+                            Puedes consultar el estado de tu solicitud en tu historial de beneficios.
+                        </div>
                     </div>
                 `,
                 confirmButtonText: '<i class="fas fa-check me-2"></i>Entendido',
-                confirmButtonColor: '#28a745'
+                confirmButtonColor: '#28a745',
+                width: '600px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirigir al historial de beneficios
+                    window.location.href = '{{ route("cefa.sga.apprentice.ben-history") }}';
+                }
             });
         } else {
+            // Manejar errores específicos
+            let errorIcon = 'fas fa-times-circle';
+            let errorColor = '#dc3545';
+            let errorTitle = 'Error en la Aplicación';
+            
+            // Personalizar mensaje según el tipo de error
+            if (data.message.includes('período de registro')) {
+                errorIcon = 'fas fa-clock';
+                errorColor = '#ffc107';
+                errorTitle = 'Período de Registro';
+            } else if (data.message.includes('ya tienes una aplicación')) {
+                errorIcon = 'fas fa-exclamation-triangle';
+                errorColor = '#fd7e14';
+                errorTitle = 'Aplicación Existente';
+            } else if (data.message.includes('no hay convocatorias')) {
+                errorIcon = 'fas fa-ban';
+                errorColor = '#6c757d';
+                errorTitle = 'Sin Convocatorias';
+            }
+            
             Swal.fire({
                 html: `
                     <div class="text-center">
                         <div class="mb-4">
-                            <i class="fas fa-times-circle text-danger fa-3x"></i>
+                            <i class="${errorIcon} text-danger fa-3x"></i>
                         </div>
-                        <h3 class="fw-bold mb-3 text-danger">Error en la Aplicación</h3>
+                        <h3 class="fw-bold mb-3 text-danger">${errorTitle}</h3>
                         <p class="mb-4">${data.message}</p>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Sugerencia:</strong> 
+                            ${data.message.includes('período de registro') ? 'Verifica las fechas de la convocatoria.' : 
+                              data.message.includes('ya tienes una aplicación') ? 'Consulta tu historial de aplicaciones.' :
+                              'Contacta al administrador del sistema.'}
+                        </div>
                     </div>
                 `,
                 confirmButtonText: '<i class="fas fa-times me-2"></i>Entendido',
-                confirmButtonColor: '#dc3545'
+                confirmButtonColor: errorColor
             });
         }
     })
@@ -458,6 +599,10 @@ function proceedWithApplication() {
                     </div>
                     <h3 class="fw-bold mb-3 text-warning">Error del Sistema</h3>
                     <p class="mb-4">Ocurrió un error al procesar tu aplicación. Por favor, intenta nuevamente.</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Si el problema persiste:</strong> Contacta al administrador del sistema.
+                    </div>
                 </div>
             `,
             confirmButtonText: '<i class="fas fa-redo me-2"></i>Reintentar',
