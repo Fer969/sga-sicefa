@@ -100,69 +100,91 @@ class ApzMyBenefitController extends Controller
         $person = $user->person;
 
         // Inicializar variables
-        $benefitHistory = [];
+        $applicationsHistory = [];
+        $activeConvocatory = null;
+        $activeApplication = null;
         $statistics = [
-            'total_received' => 0,
-            'total_missed' => 0,
-            'total_justified' => 0,
-            'attendance_percentage' => 0
+            'total_applications' => 0,
+            'active_applications' => 0,
+            'total_points_earned' => 0,
+            'average_points' => 0
         ];
 
         if ($person) {
-            // Buscar la aplicación activa del aprendiz
-            $application = \Modules\SGA\Entities\CallsApplication::where('person_id', $person->id)
-                ->where('convocatory_selected', 4) // Convocatoria de Alimentación
-                ->orderBy('created_at', 'desc')
-                ->first();
+            // Obtener la convocatoria más reciente y activa de "Apoyo de Alimentación"
+            $activeConvocatory = $this->getActiveConvocatory();
+            
+            // Obtener todas las aplicaciones del aprendiz a convocatorias de alimentación
+            $allApplications = \Modules\SGA\Entities\CallsApplication::where('person_id', $person->id)
+                ->join('convocatories', 'calls_applications.convocatory_selected', '=', 'convocatories.id')
+                ->join('types_convocatories', 'convocatories.types_convocatories_id', '=', 'types_convocatories.id')
+                ->where('types_convocatories.name', 'Apoyo de Alimentación')
+                ->select('calls_applications.*', 'convocatories.name as convocatory_name', 'convocatories.quarter', 'convocatories.year', 'convocatories.status as convocatory_status', 'convocatories.registration_start_date', 'convocatories.registration_deadline', 'convocatories.coups')
+                ->orderBy('calls_applications.created_at', 'desc')
+                ->get();
 
-            if ($application) {
-                // Obtener información de la convocatoria
-                $convocatory = \Modules\SGA\Entities\Convocatory::find(4);
-                
-                if ($convocatory) {
-                    // Consultar datos reales de asistencia del aprendiz
-                    $attendanceRecords = DB::table('attendance_apprentices')
-                        ->where('person_id', $person->id)
-                        ->orderBy('date', 'desc')
-                        ->get();
+            if ($allApplications->count() > 0) {
+                foreach ($allApplications as $application) {
+                    // Calcular posición en el cupo para esta convocatoria
+                    $applicationsCount = \Modules\SGA\Entities\CallsApplication::where('convocatory_selected', $application->convocatory_selected)->count();
+                    $positionByPoints = \Modules\SGA\Entities\CallsApplication::where('convocatory_selected', $application->convocatory_selected)
+                        ->where('total_points', '>', $application->total_points)
+                        ->count();
+                    $position = $positionByPoints + 1;
 
-                    // Procesar registros de asistencia reales
-                    foreach ($attendanceRecords as $record) {
-                        $date = Carbon::parse($record->date);
-                        $status = $this->mapAttendanceState($record->state);
+                    // Determinar el nivel del cupo
+                    $cupLevel = $position <= $application->coups ? 'DENTRO DEL CUPO' : 'EN LISTA DE ESPERA';
+                    $cupStatus = $position <= $application->coups ? 'success' : 'warning';
+
+                    // Determinar el estado de la aplicación
+                    $applicationStatus = 'Inactiva';
+                    if ($application->convocatory_status === 'Active') {
+                        $now = Carbon::now();
+                        $startDate = Carbon::parse($application->registration_start_date);
+                        $deadline = Carbon::parse($application->registration_deadline);
                         
-                        $benefitHistory[] = [
-                            'date' => $date,
-                            'day_name' => $date->format('l'),
-                            'day_spanish' => $this->getDayInSpanish($date->dayOfWeek),
-                            'time' => $this->getAttendanceTime($record->state),
-                            'status' => $status,
-                            'observations' => $this->getObservationsByStatus($status),
-                            'can_justify' => $status === 'missed',
-                            'original_state' => $record->state
-                        ];
-                        
-                        // Actualizar estadísticas
-                        if ($status === 'received') {
-                            $statistics['total_received']++;
-                        } elseif ($status === 'missed') {
-                            $statistics['total_missed']++;
-                        } elseif ($status === 'justified') {
-                            $statistics['total_justified']++;
+                        if ($now->between($startDate, $deadline)) {
+                            $applicationStatus = 'Activa';
+                        } elseif ($now->lt($startDate)) {
+                            $applicationStatus = 'Próximamente';
+                        } else {
+                            $applicationStatus = 'Finalizada';
                         }
                     }
+
+                    $applicationsHistory[] = [
+                        'id' => $application->id,
+                        'convocatory_name' => $application->convocatory_name,
+                        'quarter' => $application->quarter,
+                        'year' => $application->year,
+                        'total_points' => $application->total_points,
+                        'application_date' => $application->created_at,
+                        'convocatory_status' => $application->convocatory_status,
+                        'application_status' => $applicationStatus,
+                        'registration_start' => $application->registration_start_date,
+                        'registration_deadline' => $application->registration_deadline,
+                        'coups' => $application->coups,
+                        'applications_count' => $applicationsCount,
+                        'position' => $position,
+                        'cup_level' => $cupLevel,
+                        'cup_status' => $cupStatus,
+                        'is_active' => $activeConvocatory && $application->convocatory_selected == $activeConvocatory->id
+                    ];
+
+                    // Actualizar estadísticas
+                    $statistics['total_applications']++;
+                    $statistics['total_points_earned'] += $application->total_points;
                     
-                    // Si no hay registros de asistencia, mostrar mensaje informativo
-                    if (count($benefitHistory) === 0) {
-                        $benefitHistory = [];
-                    }
-                    
-                    // Calcular porcentaje de asistencia
-                    $totalDays = count($benefitHistory);
-                    if ($totalDays > 0) {
-                        $statistics['attendance_percentage'] = round(($statistics['total_received'] / $totalDays) * 100);
+                    if ($applicationStatus === 'Activa') {
+                        $statistics['active_applications']++;
                     }
                 }
+
+                // Calcular promedio de puntos
+                $statistics['average_points'] = round($statistics['total_points_earned'] / $statistics['total_applications']);
+
+                // Obtener la aplicación activa si existe
+                $activeApplication = $allApplications->where('convocatory_selected', $activeConvocatory ? $activeConvocatory->id : null)->first();
             }
         }
 
@@ -170,9 +192,9 @@ class ApzMyBenefitController extends Controller
             'titlePage' => $titlePage,
             'titleView' => $titleView,
             'person' => $person,
-            'application' => $application,
-            'convocatory' => $convocatory,
-            'benefitHistory' => $benefitHistory,
+            'activeConvocatory' => $activeConvocatory,
+            'activeApplication' => $activeApplication,
+            'applicationsHistory' => $applicationsHistory,
             'statistics' => $statistics
         ];
 
