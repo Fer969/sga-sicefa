@@ -56,6 +56,7 @@ Route::middleware(['lang'])->group(function () {
         });
         Route::controller(AdmEvController::class)->group(function () {
             Route::get('admin/ev-history', 'index')->name('cefa.sga.admin.ev-history'); // Visualizar historial de puntajes
+            Route::post('admin/ev-history/puntajes-detallados', 'getPuntajesDetallados')->name('cefa.sga.admin.ev-history.puntajes-detallados'); // Obtener puntajes detallados
         });
         Route::controller(AdmBSummaryController::class)->group(function () {
             Route::get('admin/b-summary', 'index')->name('cefa.sga.admin.b-summary'); // Visualizar puntajes de aprendices
