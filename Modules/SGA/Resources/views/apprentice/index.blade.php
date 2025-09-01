@@ -9,7 +9,7 @@
     </div>
 
     <!-- Alertas y Notificaciones -->
-    @if($benefitData)
+    @if($convocatory)
         <div class="row mb-4">
             <div class="col-12">
                 @if($benefitStatus === 'Activo')
@@ -20,13 +20,52 @@
                             Has obtenido {{ $benefitData['total_points'] }} puntos y estás en la posición #{{ $benefitData['position_by_points'] }} del cupo.
                         </div>
                     </div>
-                @else
+                @elseif($benefitStatus === 'Inactivo')
                     <div class="alert alert-warning d-flex align-items-center" role="alert">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <div>
-                            <strong>Beneficio Inactivo:</strong> Tu aplicación existe pero la convocatoria no está activa actualmente.
+                            <strong>Beneficio Inactivo:</strong> Tu aplicación existe pero la convocatoria "{{ $benefitData['convocatory_name'] }}" no está activa actualmente.
                         </div>
                     </div>
+                @else
+                    @php
+                        $now = \Carbon\Carbon::now();
+                        $startDate = \Carbon\Carbon::parse($convocatory->registration_start_date);
+                        $deadline = \Carbon\Carbon::parse($convocatory->registration_deadline);
+                        $inPeriod = $now->between($startDate, $deadline);
+                        $canApply = $convocatory->status === 'Active' && $inPeriod;
+                    @endphp
+                    
+                    @if($canApply)
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <div>
+                                <strong>¡Convocatoria Abierta!</strong> La convocatoria "{{ $convocatory->name }}" está abierta para aplicaciones hasta el {{ $deadline->format('d/m/Y H:i') }}.
+                                <a href="{{ route('cefa.sga.apprentice.apply-to-call') }}" class="alert-link ms-2">Haz clic aquí para aplicar</a>
+                            </div>
+                        </div>
+                    @elseif($now->lt($startDate))
+                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                            <i class="fas fa-clock me-2"></i>
+                            <div>
+                                <strong>Convocatoria Próximamente:</strong> La convocatoria "{{ $convocatory->name }}" abrirá el {{ $startDate->format('d/m/Y H:i') }}.
+                            </div>
+                        </div>
+                    @elseif($now->gt($deadline))
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <i class="fas fa-times-circle me-2"></i>
+                            <div>
+                                <strong>Período Cerrado:</strong> El período de registro para la convocatoria "{{ $convocatory->name }}" finalizó el {{ $deadline->format('d/m/Y H:i') }}.
+                            </div>
+                        </div>
+                    @else
+                        <div class="alert alert-secondary d-flex align-items-center" role="alert">
+                            <i class="fas fa-pause-circle me-2"></i>
+                            <div>
+                                <strong>Convocatoria No Disponible:</strong> La convocatoria "{{ $convocatory->name }}" no está disponible para aplicaciones en este momento.
+                            </div>
+                        </div>
+                    @endif
                 @endif
             </div>
         </div>
@@ -98,9 +137,26 @@
         <div class="col-md-3">
             <div class="card bg-warning text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Convocatorias</h5>
-                    <h3 class="card-text">{{ $dashboardStats['available_calls'] }}</h3>
-                    <small>Disponibles</small>
+                    <h5 class="card-title">Convocatoria Activa</h5>
+                    @if($convocatory)
+                        <h3 class="card-text">{{ $convocatory->name }}</h3>
+                        @php
+                            $now = \Carbon\Carbon::now();
+                            $startDate = \Carbon\Carbon::parse($convocatory->registration_start_date);
+                            $deadline = \Carbon\Carbon::parse($convocatory->registration_deadline);
+                            $inPeriod = $now->between($startDate, $deadline);
+                        @endphp
+                        @if($inPeriod)
+                            <small class="text-success">Período Abierto</small>
+                        @elseif($now->lt($startDate))
+                            <small class="text-warning">Próximamente</small>
+                        @else
+                            <small class="text-danger">Cerrado</small>
+                        @endif
+                    @else
+                        <h3 class="card-text">No disponible</h3>
+                        <small>Sin convocatorias</small>
+                    @endif
                 </div>
             </div>
         </div>
@@ -158,15 +214,57 @@
                                     </td>
                                 </tr>
                             @endif
-                            @if($benefitData)
+                            @if($convocatory)
                                 <tr>
-                                    <td><strong>Convocatoria:</strong></td>
-                                    <td>{{ $benefitData['convocatory_name'] }}</td>
+                                    <td><strong>Convocatoria Activa:</strong></td>
+                                    <td>{{ $convocatory->name }}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Trimestre:</strong></td>
-                                    <td>Q{{ $benefitData['quarter'] }} - {{ $benefitData['year'] }}</td>
+                                    <td>Q{{ $convocatory->quarter }} - {{ $convocatory->year }}</td>
                                 </tr>
+                                <tr>
+                                    <td><strong>Estado:</strong></td>
+                                    <td>
+                                        @if($convocatory->status === 'Active')
+                                            <span class="badge bg-success">Activa</span>
+                                        @else
+                                            <span class="badge bg-secondary">Inactiva</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Período de Registro:</strong></td>
+                                    <td>
+                                        @php
+                                            $now = \Carbon\Carbon::now();
+                                            $startDate = \Carbon\Carbon::parse($convocatory->registration_start_date);
+                                            $deadline = \Carbon\Carbon::parse($convocatory->registration_deadline);
+                                            $inPeriod = $now->between($startDate, $deadline);
+                                        @endphp
+                                        <div class="small">
+                                            <div>Inicio: {{ $startDate->format('d/m/Y H:i') }}</div>
+                                            <div>Cierre: {{ $deadline->format('d/m/Y H:i') }}</div>
+                                            @if($inPeriod)
+                                                <span class="badge bg-success mt-1">Abierto</span>
+                                            @elseif($now->lt($startDate))
+                                                <span class="badge bg-warning mt-1">Próximamente</span>
+                                            @else
+                                                <span class="badge bg-danger mt-1">Cerrado</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @if($benefitData)
+                                    <tr>
+                                        <td><strong>Mi Convocatoria:</strong></td>
+                                        <td>{{ $benefitData['convocatory_name'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Mi Trimestre:</strong></td>
+                                        <td>Q{{ $benefitData['quarter'] }} - {{ $benefitData['year'] }}</td>
+                                    </tr>
+                                @endif
                             @endif
                         </table>
                     @else
@@ -217,14 +315,82 @@
                                 </div>
                                 <span class="badge bg-{{ $benefitData['cup_status'] }}">{{ $benefitData['cup_level'] }}</span>
                             </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Cupos Disponibles</h6>
+                                    <small class="text-muted">{{ $benefitData['coups'] }} cupos totales</small>
+                                </div>
+                                <span class="badge bg-primary">{{ $benefitData['coups'] }}</span>
+                            </div>
+                        </div>
+                    @elseif($convocatory)
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Estado de Aplicación</h6>
+                                    <small class="text-muted">No has aplicado a esta convocatoria</small>
+                                </div>
+                                <span class="badge bg-warning">Pendiente</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Convocatoria</h6>
+                                    <small class="text-muted">{{ $convocatory->name }}</small>
+                                </div>
+                                <span class="badge bg-info">{{ $convocatory->status }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Cupos Disponibles</h6>
+                                    <small class="text-muted">{{ $convocatory->coups }} cupos totales</small>
+                                </div>
+                                <span class="badge bg-primary">{{ $convocatory->coups }}</span>
+                            </div>
+                            @php
+                                $now = \Carbon\Carbon::now();
+                                $startDate = \Carbon\Carbon::parse($convocatory->registration_start_date);
+                                $deadline = \Carbon\Carbon::parse($convocatory->registration_deadline);
+                                $inPeriod = $now->between($startDate, $deadline);
+                                $canApply = $convocatory->status === 'Active' && $inPeriod;
+                            @endphp
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Período de Registro</h6>
+                                    <small class="text-muted">
+                                        @if($inPeriod)
+                                            Abierto hasta {{ $deadline->format('d/m/Y H:i') }}
+                                        @elseif($now->lt($startDate))
+                                            Abre el {{ $startDate->format('d/m/Y H:i') }}
+                                        @else
+                                            Cerrado desde {{ $deadline->format('d/m/Y H:i') }}
+                                        @endif
+                                    </small>
+                                </div>
+                                @if($canApply)
+                                    <span class="badge bg-success">Disponible</span>
+                                @elseif($now->lt($startDate))
+                                    <span class="badge bg-warning">Próximamente</span>
+                                @else
+                                    <span class="badge bg-danger">Cerrado</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            @if($canApply)
+                                <a href="{{ route('cefa.sga.apprentice.apply-to-call') }}" class="btn btn-success">
+                                    <i class="fas fa-edit me-2"></i>Aplicar Ahora
+                                </a>
+                            @else
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="fas fa-clock me-2"></i>No Disponible
+                                </button>
+                            @endif
                         </div>
                     @else
                         <div class="text-center py-3">
                             <i class="fas fa-info-circle text-muted mb-2" style="font-size: 2rem;"></i>
-                            <p class="text-muted mb-0">No tienes beneficios activos</p>
-                            <a href="{{ route('cefa.sga.apprentice.apply-to-call') }}" class="btn btn-primary btn-sm mt-2">
-                                <i class="fas fa-edit"></i> Aplicar a Convocatoria
-                            </a>
+                            <p class="text-muted mb-0">No hay convocatorias disponibles</p>
+                            <small class="text-muted">No hay convocatorias de alimentación activas en este momento.</small>
                         </div>
                     @endif
                 </div>

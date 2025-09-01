@@ -5,6 +5,7 @@ namespace Modules\SGA\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ApprenticeController extends Controller
 {
@@ -38,51 +39,53 @@ class ApprenticeController extends Controller
         $dashboardStats = [];
 
         if ($person) {
-            // Buscar la aplicación activa del aprendiz
-            $application = \Modules\SGA\Entities\CallsApplication::where('person_id', $person->id)
-                ->where('convocatory_selected', 4) // Convocatoria de Alimentación
-                ->orderBy('created_at', 'desc')
-                ->first();
+            // Obtener la convocatoria más reciente y activa de "Apoyo de Alimentación"
+            $convocatory = $this->getActiveConvocatory();
+            
+            if ($convocatory) {
+                // Buscar la aplicación del aprendiz a esta convocatoria
+                $application = \Modules\SGA\Entities\CallsApplication::where('person_id', $person->id)
+                    ->where('convocatory_selected', $convocatory->id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
 
-            if ($application) {
-                // Obtener información de la convocatoria
-                $convocatory = \Modules\SGA\Entities\Convocatory::find(4);
-                
-                if ($convocatory && $convocatory->status === 'Active') {
-                    $benefitStatus = 'Activo';
-                    
-                    // Calcular estadísticas del beneficio
-                    $benefitData = [
-                        'total_points' => $application->total_points,
-                        'application_date' => $application->created_at,
-                        'convocatory_name' => $convocatory->name,
-                        'quarter' => $convocatory->quarter,
-                        'year' => $convocatory->year,
-                        'registration_start' => $convocatory->registration_start_date,
-                        'registration_deadline' => $convocatory->registration_deadline,
-                        'coups' => $convocatory->coups
-                    ];
-                    
-                    // Calcular la posición del aprendiz en el cupo
-                    $applicationsCount = \Modules\SGA\Entities\CallsApplication::where('convocatory_selected', 4)->count();
-                    $benefitData['applications_count'] = $applicationsCount;
-                    
-                    // Calcular posición por puntaje (orden descendente)
-                    $positionByPoints = \Modules\SGA\Entities\CallsApplication::where('convocatory_selected', 4)
-                        ->where('total_points', '>', $application->total_points)
-                        ->count();
-                    $benefitData['position_by_points'] = $positionByPoints + 1; // +1 porque es posición, no índice
-                    
-                    // Determinar el nivel del cupo
-                    if ($benefitData['position_by_points'] <= $convocatory->coups) {
-                        $benefitData['cup_level'] = 'DENTRO DEL CUPO';
-                        $benefitData['cup_status'] = 'success';
+                if ($application) {
+                    if ($convocatory->status === 'Active') {
+                        $benefitStatus = 'Activo';
+                        
+                        // Calcular estadísticas del beneficio
+                        $benefitData = [
+                            'total_points' => $application->total_points,
+                            'application_date' => $application->created_at,
+                            'convocatory_name' => $convocatory->name,
+                            'quarter' => $convocatory->quarter,
+                            'year' => $convocatory->year,
+                            'registration_start' => $convocatory->registration_start_date,
+                            'registration_deadline' => $convocatory->registration_deadline,
+                            'coups' => $convocatory->coups
+                        ];
+                        
+                        // Calcular la posición del aprendiz en el cupo
+                        $applicationsCount = \Modules\SGA\Entities\CallsApplication::where('convocatory_selected', $convocatory->id)->count();
+                        $benefitData['applications_count'] = $applicationsCount;
+                        
+                        // Calcular posición por puntaje (orden descendente)
+                        $positionByPoints = \Modules\SGA\Entities\CallsApplication::where('convocatory_selected', $convocatory->id)
+                            ->where('total_points', '>', $application->total_points)
+                            ->count();
+                        $benefitData['position_by_points'] = $positionByPoints + 1; // +1 porque es posición, no índice
+                        
+                        // Determinar el nivel del cupo
+                        if ($benefitData['position_by_points'] <= $convocatory->coups) {
+                            $benefitData['cup_level'] = 'DENTRO DEL CUPO';
+                            $benefitData['cup_status'] = 'success';
+                        } else {
+                            $benefitData['cup_level'] = 'EN LISTA DE ESPERA';
+                            $benefitData['cup_status'] = 'warning';
+                        }
                     } else {
-                        $benefitData['cup_level'] = 'EN LISTA DE ESPERA';
-                        $benefitData['cup_status'] = 'warning';
+                        $benefitStatus = 'Inactivo';
                     }
-                } else {
-                    $benefitStatus = 'Inactivo';
                 }
             }
 
@@ -90,7 +93,8 @@ class ApprenticeController extends Controller
             $dashboardStats = [
                 'available_calls' => \Modules\SGA\Entities\Convocatory::where('status', 'Active')->count(),
                 'total_applications' => $application ? 1 : 0,
-                'profile_completion' => $this->calculateProfileCompletion($person)
+                'profile_completion' => $this->calculateProfileCompletion($person),
+                'active_convocatory' => $convocatory ? $convocatory->name : 'No disponible'
             ];
         }
 
@@ -106,6 +110,20 @@ class ApprenticeController extends Controller
         ];
 
         return view('sga::apprentice.index', $data);
+    }
+
+    /**
+     * Obtener la convocatoria más reciente y activa de "Apoyo de Alimentación"
+     */
+    private function getActiveConvocatory()
+    {
+        return DB::table('types_convocatories')
+            ->join('convocatories', 'types_convocatories.id', '=', 'convocatories.types_convocatories_id')
+            ->where('types_convocatories.name', 'Apoyo de Alimentación')
+            ->where('convocatories.status', 'Active')
+            ->orderBy('convocatories.created_at', 'desc')
+            ->select('convocatories.*')
+            ->first();
     }
 
     private function calculateProfileCompletion($person)
