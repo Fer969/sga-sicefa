@@ -52,6 +52,7 @@ Route::middleware(['lang'])->group(function () {
         Route::controller(AdmSAssgnController::class)->group(function () {
             Route::get('admin/s-assgn', 'index')->name('cefa.sga.admin.s-assgn'); // Editar puntaje de convocatoria alimentaria
             Route::get('admin/s-assgn/debug', 'debug')->name('cefa.sga.admin.s-assgn.debug'); // Debug para verificar datos
+            Route::post('admin/s-assgn/export-pdf', 'exportPDF')->name('cefa.sga.admin.s-assgn.export-pdf'); // Exportar a PDF
         });
         Route::controller(AdmEvController::class)->group(function () {
             Route::get('admin/ev-history', 'index')->name('cefa.sga.admin.ev-history'); // Visualizar historial de puntajes
