@@ -1,66 +1,188 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# 🎓 SGA-SICEFA
+### Sistema de Gestión Académica - SICEFA
+*Aplicación modular Laravel para gestión integral de procesos académicos y administrativos*
 
 <p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/AdminLTE-3C8DBC?style=for-the-badge&logo=bootstrap&logoColor=white" alt="AdminLTE">
 </p>
 
-## About Laravel
+<p align="center">
+  <img src="https://img.shields.io/github/license/Fer969/sga-sicefa?style=flat-square" alt="License">
+  <img src="https://img.shields.io/github/last-commit/Fer969/sga-sicefa?style=flat-square" alt="Last Commit">
+  <img src="https://img.shields.io/github/languages/count/Fer969/sga-sicefa?style=flat-square" alt="Languages">
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Descripción
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+SGA-SICEFA es un sistema integral de gestión académica desarrollado con Laravel que permite administrar múltiples procesos educativos y administrativos a través de una arquitectura modular. El sistema está diseñado para instituciones educativas que requieren una solución completa y escalable.
 
-## Learning Laravel
+## ✨ Características Principales
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- 🏗️ **Arquitectura Modular**: 17 módulos independientes para diferentes procesos
+- 🎨 **Interfaz Moderna**: Basada en AdminLTE para una experiencia de usuario intuitiva
+- 📊 **Reportes y Gráficos**: Integración con Highcharts para visualización de datos
+- 👥 **Gestión de Usuarios**: Sistema completo de roles y permisos
+- 📱 **Responsive Design**: Compatible con dispositivos móviles y tablets
+- 🔒 **Seguridad**: Implementación de mejores prácticas de seguridad Laravel
+- 📈 **Escalable**: Diseño preparado para crecimiento institucional
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🧩 Módulos del Sistema
 
-## Laravel Sponsors
+| Módulo | Descripción | Archivos |
+|--------|-------------|----------|
+| **SICA** | Sistema de Información y Control Académico | 353 |
+| **SIGAC** | Sistema de Gestión Académica y Curricular | 210 |
+| **SENAEMPRESA** | Gestión empresarial y productiva | 124 |
+| **HANGARAUTO** | Gestión automotriz | 113 |
+| **CAFETO** | Gestión de cultivos de café | 106 |
+| **SGA** | Sistema de Gestión Académica | 105 |
+| **PTVENTA** | Punto de venta | 92 |
+| **AGROINDUSTRIA** | Gestión agroindustrial | 92 |
+| **HDC** | Gestión de datos clínicos | 90 |
+| **CEFAMAPS** | Mapas y geolocalización | 85 |
+| **EVS** | Evaluación y seguimiento | 65 |
+| **GTH** | Gestión del talento humano | 62 |
+| **CPD** | Desarrollo profesional continuo | 59 |
+| **PQRS** | Peticiones, quejas, reclamos y sugerencias | 51 |
+| **TILABS** | Laboratorios TI | 39 |
+| **BOLMETEOR** | Información meteorológica | 38 |
+| **AGROCEFA** | Gestión agropecuaria | 131 |
+| **BIENESTAR** | Bienestar institucional | - |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## 🚀 Instalación
 
-### Premium Partners
+### Prerrequisitos
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[CMS Max](https://www.cmsmax.com/)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-- **[Romega Software](https://romegasoftware.com)**
+- PHP >= 8.0
+- Composer
+- Node.js >= 14.x
+- MySQL >= 5.7
+- Apache/Nginx
 
-## Contributing
+### Pasos de instalación
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/Fer969/sga-sicefa.git
+   cd sga-sicefa
+   ```
 
-## Code of Conduct
+2. **Instalar dependencias de PHP**
+   ```bash
+   composer install
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. **Instalar dependencias de Node.js**
+   ```bash
+   npm install
+   ```
 
-## Security Vulnerabilities
+4. **Configurar variables de entorno**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. **Configurar base de datos**
+   - Editar el archivo `.env` con los datos de tu base de datos
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=sga_sicefa
+   DB_USERNAME=tu_usuario
+   DB_PASSWORD=tu_contraseña
+   ```
 
-## License
+6. **Ejecutar migraciones**
+   ```bash
+   php artisan migrate
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+7. **Ejecutar seeders (opcional)**
+   ```bash
+   php artisan db:seed
+   ```
+
+8. **Compilar assets**
+   ```bash
+   npm run dev
+   # o para producción
+   npm run build
+   ```
+
+9. **Configurar permisos**
+   ```bash
+   chmod -R 775 storage bootstrap/cache
+   ```
+
+## 🔧 Configuración
+
+### Módulos
+El sistema utiliza [nwidart/laravel-modules](https://github.com/nwidart/laravel-modules) para la gestión modular. Cada módulo tiene su propia estructura MVC.
+
+### Permisos de archivos
+```bash
+# Dar permisos a las carpetas necesarias
+sudo chown -R www-data:www-data storage
+sudo chown -R www-data:www-data bootstrap/cache
+```
+
+### Configuración del servidor web
+Asegúrate de que el documento root apunte a la carpeta `public/`.
+
+## 📖 Uso
+
+1. **Acceder al sistema**
+   - Navega a tu dominio configurado
+   - Utiliza las credenciales por defecto o las configuradas en los seeders
+
+2. **Navegación por módulos**
+   - Cada módulo tiene su propia interfaz accesible desde el menú principal
+   - Los permisos se gestionan por roles de usuario
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Backend**: Laravel 9.x
+- **Frontend**: AdminLTE, Bootstrap, jQuery
+- **Base de datos**: MySQL
+- **Gráficos**: Highcharts
+- **Gestión de archivos**: Laravel File Manager
+- **Exportación**: Laravel Excel, DomPDF
+- **Autenticación**: Laravel Sanctum
+- **Auditoría**: Laravel Auditing
+
+## 🤝 Contribución
+
+Las contribuciones son bienvenidas. Para contribuir:
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📝 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+
+## 👨‍💻 Autor
+
+**Luisfer Fuentes Montoya** - [@Fer969](https://github.com/Fer969)
+
+## 📞 Soporte
+
+Si tienes preguntas o necesitas soporte:
+- 📧 Email: luisferfuentesmontoya@gmail.com
+- 🐛 Issues: [GitHub Issues](https://github.com/Fer969/sga-sicefa/issues)
+
+---
+
+<p align="center">
+  Desarrollado con ❤️ para la gestión académica moderna
+</p>
