@@ -44,4 +44,17 @@ class SGAController extends Controller
 
         return view('sga::admin.index', $data);
     }
+
+    public function manual()
+    {
+        $titlePage = 'Manual de Usuario SGA';
+        $titleView = 'Manual de Usuario SGA';
+
+        $data = [
+            'titlePage' => $titlePage,
+            'titleView' => $titleView
+        ];
+
+        return view('sga::manual', $data);
+    }
 }

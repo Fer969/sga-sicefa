@@ -66,7 +66,7 @@
                     </div>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{ Route::is('cefa.sga.admin.convocatories') || Route::is('cefa.sga.admin.points') || Route::is('cefa.sga.admin.external-events') ? 'active' : '' }}"
-                        href="#"
+                        href=""
                         id="navbarSysParams"
                         role="button"
                         data-toggle="dropdown"

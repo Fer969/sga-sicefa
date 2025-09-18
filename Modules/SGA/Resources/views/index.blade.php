@@ -446,6 +446,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#desarrolladores">{{ trans('sga::menu.developers') }}</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('cefa.sga.home.manual') }}">Manual de Usuario</a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                             @php
@@ -818,7 +821,8 @@
                             <li class="mb-2"><a href="#sistema" class="text-light text-decoration-none">{{ trans('sga::menu.system') }}</a></li>
                             <li class="mb-2"><a href="#funciones" class="text-light text-decoration-none">{{ trans('sga::menu.functions') }}</a></li>
                             <li class="mb-2"><a href="#contacto" class="text-light text-decoration-none">{{ trans('sga::menu.Contact') }}</a></li>
-                            <li><a href="#desarrolladores" class="text-light text-decoration-none">{{ trans('sga::menu.Developers') }}</a></li>
+                            <li class="mb-2"><a href="#desarrolladores" class="text-light text-decoration-none">{{ trans('sga::menu.Developers') }}</a></li>
+                            <li><a href="{{ route('cefa.sga.home.manual') }}" class="text-light text-decoration-none">Manual de Usuario</a></li>
                         </ul>
                     </div>
                 </div>
